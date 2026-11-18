@@ -13,7 +13,8 @@ from statsmodels.stats.outliers_influence import variance_inflation_factor
 # Pré-tendências: H_MIN = -4 (h = -1 é zero por construção e é pulado)
 # Só pós-choque : H_MIN = 1
 H_MIN, H_MAX = -4, 8
-ARQ = "painel_regressao_q_bp.csv"
+ROOT = Path(__file__).resolve().parent
+ARQ = ROOT / "painel_regressao_q_bp.csv"
 MIN_OBS = 200          # mínimo de observações para estimar um horizonte
 H_PRE = (-4, -3, -2)   # horizontes do teste de pré-tendências
 
@@ -274,7 +275,7 @@ def diagnostico_selecao(df):
 sel = diagnostico_selecao(p)
 print("\n===== Seleção: Restrita vs. fora da Restrita (|dif. padronizada| > 0,2 = relevante) =====")
 print(sel.round(4).to_string(index=False))
-sel.to_csv(f"diagnostico_selecao{SUFIXO}.csv", index=False)
+sel.to_csv(ROOT / f"diagnostico_selecao{SUFIXO}.csv", index=False)
 
 # ---------------- split por mediana da alavancagem pré-choque ----------------
 mediana_alav = p["Alavancagem_L1"].median()     # mediana da base completa (grupos consistentes)
@@ -306,7 +307,7 @@ for nome in ("Total", "Restrita"):
                               "VIF_within_firma": calcula_vif(Xw)}))
     print(f"===== VIF (ctrl_int, amostra {nome}, n = {len(Xv)}) =====")
     print(vifs[-1][["VIF_nivel", "VIF_within_firma"]].round(3).to_string())
-pd.concat(vifs).to_csv(f"vif_ctrl_int{SUFIXO}.csv")
+pd.concat(vifs).to_csv(ROOT / f"vif_ctrl_int{SUFIXO}.csv")
 
 # ---------------- SÉRIE DEPENDENTE ----------------
 T_ALL = np.arange(p["t"].min(), p["t"].max() + 1)
@@ -401,7 +402,7 @@ res = pd.concat(todos, ignore_index=True)
 # (a) IRFs consolidadas (todas as amostras/specs/variáveis) com erros-padrão e ICs
 cols_irf = ["amostra", "subgrupo", "spec", "var", "h", "coef", "se", "p",
             "lo95", "hi95", "lo90", "hi90", "n", "n_firmas", "inferencia", "lags_dk"]
-res[cols_irf].to_csv(f"irf_consolidado{SUFIXO}.csv", index=False)
+res[cols_irf].to_csv(ROOT / f"irf_consolidado{SUFIXO}.csv", index=False)
 
 
 # (b) Tabela lado a lado Total vs. Restrita (coeficiente e p-valor)
@@ -424,7 +425,7 @@ def tabela_comparativa(df, var, a1="Total", a2="Restrita"):
 
 comp = pd.concat([tabela_comparativa(res, v)
                   for v in ("Ch_Caixa", "Ch_Tam", "Ch_FCO", "Shock")], ignore_index=True)
-comp.to_csv(f"comparacao_total_vs_restrita{SUFIXO}.csv", index=False)
+comp.to_csv(ROOT / f"comparacao_total_vs_restrita{SUFIXO}.csv", index=False)
 
 print("\n===== Ch_Caixa: Total (sem Q) vs. Restrita (com Q) =====")
 cc = comp[comp["var"] == "Ch_Caixa"]
@@ -469,7 +470,7 @@ for nome in AMOSTRAS:
     pre_all.append(teste_pre_tendencia(cheia[cheia["spec"] == "ctrl_int"],
                                        f"{nome} | ctrl_int", VARS_CTRL_INT)
                    .assign(amostra_teste=nome, spec_teste="ctrl_int"))
-pd.concat(pre_all, ignore_index=True).to_csv(f"pre_tendencias{SUFIXO}.csv", index=False)
+pd.concat(pre_all, ignore_index=True).to_csv(ROOT / f"pre_tendencias{SUFIXO}.csv", index=False)
 
 
 # ---------------- GRÁFICOS (amostras sobrepostas para comparação) ----------------

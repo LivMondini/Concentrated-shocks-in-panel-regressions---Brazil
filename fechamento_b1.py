@@ -3,8 +3,10 @@ import numpy as np
 import pandas as pd
 from scipy.stats import norm
 from linearmodels.panel import PanelOLS
-from fechamento_letter import prepare_panel, fmt, table, winsor, ROOT, HS, AMOSTRAS
+from pathlib import Path
+from fechamento_letter import prepare_panel, fmt, table, winsor, HS, AMOSTRAS
 
+ROOT = Path(__file__).resolve().parent
 OUT = ROOT / "fechamento_b1.md"
 Q = lambda s: pd.Period(s, freq="Q").ordinal
 E21 = np.arange(Q("2021Q1"), Q("2021Q4") + 1)

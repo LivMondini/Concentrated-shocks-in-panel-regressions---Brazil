@@ -34,7 +34,8 @@ import pandas as pd
 # =============================================================================
 # CONFIGURAÇÕES
 # =============================================================================
-BASE_DIR = Path(".")
+ROOT = Path(__file__).resolve().parent
+BASE_DIR = ROOT
 PAINEL_CSV = BASE_DIR / "painel_final.csv"
 ORTOG_CSV = BASE_DIR / "painel_regressao_q_ortog.csv"
 COBERTURA_CSV = BASE_DIR / "cobertura_ativo_fixo_ano.csv"

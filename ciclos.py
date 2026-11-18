@@ -19,6 +19,7 @@ firmas observadas antes da janela ainda pode cair dentro dela em h>0.
 import math
 import sys
 import time
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -27,6 +28,7 @@ import placebos as pb
 from placebos import build, fit_full, G, HS, AMOSTRAS_TESTE
 from eventos import ajusta, comb, W2021, Q2021
 
+ROOT = Path(__file__).resolve().parent
 JANELAS = {
     "2013Q2-2015Q2 (principal)": ("2013Q2", "2015Q2"),
     "2013Q2-2014Q4 (sens.)": ("2013Q2", "2014Q4"),
@@ -100,5 +102,5 @@ if __name__ == "__main__":
         t1 = time.time()
         print(f"\n=== {nome} ===")
         df = TESTES[nome]()
-        df.to_csv(f"ciclos_{nome}.csv", index=False)
+        df.to_csv(ROOT / f"ciclos_{nome}.csv", index=False)
         print(f"[{nome}] {time.time() - t1:.0f}s -> ciclos_{nome}.csv")

@@ -21,6 +21,7 @@ import math
 import sys
 import time
 import warnings
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -30,6 +31,7 @@ from scipy import stats
 import placebos as pb
 from placebos import build, fit_full, p, G, G0, S0, V, ZMAP, HS, AMOSTRAS_TESTE, rot
 
+ROOT = Path(__file__).resolve().parent
 # Lista fixada ANTES de ver os resultados (um trimestre por evento).
 EVENTOS_Q = {
     "2011Q3": "Crise da divida europeia / rebaixamento EUA",
@@ -112,12 +114,12 @@ def teste_trimestre():
             if s is not None:
                 partes.append(s)
     det = pd.concat(partes, ignore_index=True)
-    det.to_csv("eventos_trimestre_detalhe.csv", index=False)
+    det.to_csv(ROOT / "eventos_trimestre_detalhe.csv", index=False)
     res, ev = resumo_e_eventos(det)
     fmt = lambda v: f"{v:.4f}"
     print("\n--- O valor do caixa varia entre trimestres? (Q grande / p_Q pequeno = varia alem do ruido) ---")
     print(res.to_string(index=False, float_format=fmt))
-    res.to_csv("eventos_trimestre_resumo.csv", index=False)
+    res.to_csv(ROOT / "eventos_trimestre_resumo.csv", index=False)
     print("\n--- Trimestres de evento (z_vs_outros: vs demais trimestres; z_resid: apos descontar o choque) ---")
     print(ev.to_string(index=False, float_format=fmt))
     return ev
@@ -183,7 +185,7 @@ def teste_epu():
     Wd = np.where(np.isfinite(E), (E >= corte).astype(float), np.nan)
     tab = pd.DataFrame({"trimestre": [rot(G[i]) for i in ok], "EPU": E[ok],
                         "EPU_alto": Wd[ok], "choque": S0[ok]})
-    tab.to_csv("eventos_epu_trimestres.csv", index=False)
+    tab.to_csv(ROOT / "eventos_epu_trimestres.csv", index=False)
     print(f"[EPU] coluna '{col}' | corr(EPU, choque) = {np.corrcoef(E[ok], S0[ok])[0, 1]:.3f}")
     print("[EPU] trimestres com EPU alto (top quartil):",
           ", ".join(tab.loc[tab["EPU_alto"] == 1, "trimestre"]))
@@ -218,5 +220,5 @@ if __name__ == "__main__":
         t1 = time.time()
         print(f"\n=== {nome} ===")
         df = TESTES[nome]()
-        df.to_csv(f"eventos_{nome}.csv", index=False)
+        df.to_csv(ROOT / f"eventos_{nome}.csv", index=False)
         print(f"[{nome}] {time.time() - t1:.0f}s -> eventos_{nome}.csv")

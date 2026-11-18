@@ -26,7 +26,7 @@ Base: `(Shock_t - média)^2` sobre os trimestres efetivamente usados em cada amo
 | Restrita | 5 | 54 | 0,344599 | 0,276828 | 9,7968 |
 | Restrita | 7 | 54 | 0,344599 | 0,276828 | 9,7968 |
 
-## A3. Attrition
+## A4. Attrition
 | Etapa | Firmas | Firma-trimestres | Observação |
 |---|---|---|---|
 | Painel contábil bruto; pré-filtros institucionais | NÃO RODADO | NÃO RODADO | Painel intermediário pré-filtros não está salvo; não reli toda a pasta CVM. |
@@ -53,7 +53,7 @@ Motivo entre as firmas restritas que não chegam à amostra estimada:
 
 Exclusão de firmas por ano fiscal não calendário: NÃO EXISTE no script_painel.py.
 
-## A4. CAPEX disponível em t..t+h
+## A20 (contagens citadas no texto). CAPEX disponível em t..t+h
 | Amostra | h | Subconjunto | Firmas | Observações |
 |---|---|---|---|---|
 | Cheia | 3 | Amostra completa | 210 | 5740 |
@@ -70,7 +70,7 @@ Exclusão de firmas por ano fiscal não calendário: NÃO EXISTE no script_paine
 | Restrita | 7 | Tercil superior de Tamanho | 51 | 1682 |
 Tercil conforme inv1315_desfechos.py: média de Tamanho por firma em 2012Q1–2013Q1; corte de 2/3 dentro da amostra.
 
-## A5. Entrantes em 2021
+## A18. Entrantes em 2021 (definição T0: primeira observação real em 2019Q1–2021Q4; primária no Adendo 6; FCA = sensibilidade)
 | Grupo | Firmas únicas | Firma-trimestres observados | Cash_Ratio médio |
 |---|---|---|---|
 | Entrantes | 123 | 458 | 0,198687 |

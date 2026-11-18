@@ -37,10 +37,12 @@ Saida: monte_carlo_resultados.csv e tabela no terminal.
 """
 import argparse
 import time
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
+ROOT = Path(__file__).resolve().parent
 T = 54
 IDX_2021 = [39, 40, 41, 42]          # 2021Q1..2021Q4 se a amostra comeca em 2011Q2
 BLOCO_2021 = np.array([0.17, 0.28, 0.33, 1.019])   # soma 1.80 -> media anual 0.45
@@ -207,7 +209,7 @@ def main():
     args = ap.parse_args()
 
     df = roda(args)
-    df.to_csv("monte_carlo_resultados.csv", index=False)
+    df.to_csv(ROOT / "monte_carlo_resultados.csv", index=False)
     pd.set_option("display.width", 200)
     t0 = df[df.gamma == 0].pivot_table(index=["cenario", "h"], columns="metodo",
                                        values="rejeicao_H0_zero")

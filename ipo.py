@@ -27,6 +27,7 @@ Saidas: ipo_resultados.csv, ipo_diagnostico_entradas.csv
 import math
 import sys
 import time
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -37,6 +38,7 @@ from placebos import (p, G0, S0, SL10, ZMAP, HS, AMOSTRAS, AMOSTRAS_TESTE, MIN_O
 from eventos import comb, Q2021
 from ciclos import trimestres, JANELAS, pval
 
+ROOT = Path(__file__).resolve().parent
 Q1315 = trimestres(*JANELAS["2013Q2-2015Q2 (principal)"])
 ONDAS = {"entrada 2019Q1-2021Q4": ("2019Q1", "2021Q4"),
          "entrada 2020Q1-2021Q4": ("2020Q1", "2021Q4"),
@@ -138,8 +140,8 @@ def diagnostico():
         g = q21.groupby("grupo")["Cash_Ratio"].agg(["count", "mean", "median"])
         print("\n--- Cash_Ratio (nivel) nos trimestres de 2021, por grupo ---")
         print(g.to_string(float_format=lambda v: f"{v:.4f}"))
-        g.reset_index().to_csv("ipo_diagnostico_cash.csv", index=False)
-    out.to_csv("ipo_diagnostico_entradas.csv", index=False)
+        g.reset_index().to_csv(ROOT / "ipo_diagnostico_cash.csv", index=False)
+    out.to_csv(ROOT / "ipo_diagnostico_entradas.csv", index=False)
 
 
 # ---------------- execucao ----------------
@@ -182,5 +184,5 @@ if __name__ == "__main__":
     diagnostico()
     t1 = time.time()
     df = rodar()
-    df.to_csv("ipo_resultados.csv", index=False)
+    df.to_csv(ROOT / "ipo_resultados.csv", index=False)
     print(f"\n[{time.time() - t1:.0f}s] -> ipo_resultados.csv")

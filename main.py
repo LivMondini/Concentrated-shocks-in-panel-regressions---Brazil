@@ -54,8 +54,8 @@ from datetime import datetime
 from importlib import metadata
 from pathlib import Path
 
-RAIZ = Path(__file__).resolve().parent
-LOG_FILE = RAIZ / "pipeline_execution.log"
+ROOT = Path(__file__).resolve().parent
+LOG_FILE = ROOT / "pipeline_execution.log"
 
 PIPELINE = [
     "script_painel.py",
@@ -152,14 +152,14 @@ def versoes_pacotes() -> dict[str, str]:
 # VERIFICAÇÕES DE ENTRADA / SAÍDA
 # =============================================================================
 def verificar_entradas(etapa: Etapa) -> None:
-    ausentes = [n for n in consulta(ENTRADAS, etapa) if not (RAIZ / n).exists()]
+    ausentes = [n for n in consulta(ENTRADAS, etapa) if not (ROOT / n).exists()]
     if ausentes:
         raise PipelineError(
             f"{etapa.rotulo}: entradas obrigatórias ausentes na raiz do projeto: {ausentes}. "
             f"Rode as etapas anteriores (ou confira qual script gera esses arquivos).")
 
     for derivado, fonte in DEPENDENCIAS_TEMPORAIS.get(etapa.script, ()):
-        pd_, pf_ = RAIZ / derivado, RAIZ / fonte
+        pd_, pf_ = ROOT / derivado, ROOT / fonte
         if pd_.exists() and pf_.exists() and pd_.stat().st_mtime + TOL_MTIME < pf_.stat().st_mtime:
             msg = (f"AVISO: {derivado} é mais antigo que {fonte}; pode estar obsoleto "
                    f"(nenhuma etapa desta pipeline o regenera?).")
@@ -170,7 +170,7 @@ def verificar_entradas(etapa: Etapa) -> None:
 def verificar_saidas(etapa: Etapa, inicio_ts: float) -> None:
     ausentes, obsoletas = [], []
     for nome in consulta(SAIDAS, etapa):
-        p = RAIZ / nome
+        p = ROOT / nome
         if not p.exists():
             ausentes.append(nome)
         elif p.stat().st_mtime < inicio_ts - TOL_MTIME:
@@ -186,7 +186,7 @@ def verificar_saidas(etapa: Etapa, inicio_ts: float) -> None:
 # =============================================================================
 def executar(etapa: Etapa) -> None:
     """Roda o script em subprocesso, transmitindo a saída em tempo real."""
-    caminho = RAIZ / etapa.script
+    caminho = ROOT / etapa.script
     if not caminho.exists():
         raise FileNotFoundError(f"Arquivo não encontrado: {caminho}")
     verificar_entradas(etapa)
@@ -202,7 +202,7 @@ def executar(etapa: Etapa) -> None:
     inicio = time.perf_counter()
     proc = subprocess.Popen(
         [sys.executable, "-u", str(caminho)],
-        cwd=RAIZ,                          # caminhos relativos dos scripts funcionam
+        cwd=ROOT,
         env=env,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,          # traceback do script aparece na mesma saída
@@ -263,11 +263,11 @@ def escrever_log(etapas: list[Etapa], inicio: datetime, total: float, ok: bool) 
     L.append("")
     L.append("[HASH SHA-256 DOS SCRIPTS]")
     for s in dict.fromkeys(e.script for e in etapas):     # sem repetir script_painel/calcular_q
-        p = RAIZ / s
+        p = ROOT / s
         L.append(f"{sha256_arquivo(p) if p.exists() else 'ARQUIVO AUSENTE'}  {s}")
     L.append("")
     L.append("[HASH SHA-256 DOS CSVs NA RAIZ]")
-    csvs = sorted(RAIZ.glob("*.csv"))
+    csvs = sorted(ROOT.glob("*.csv"))
     if not csvs:
         L.append("(nenhum CSV encontrado na raiz)")
     for p in csvs:

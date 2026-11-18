@@ -16,6 +16,7 @@ import pandas as pd
 from linearmodels.panel import PanelOLS
 
 # ---------------- CONFIG ----------------
+ROOT = Path(__file__).resolve().parent
 HS = (3, 5, 7)          # horizontes testados
 N_PERM = 1000           # reps da permutacao aleatoria do choque
 N_CASH = 500            # reps da permutacao do caixa
@@ -28,14 +29,13 @@ ESPERADO = {("Restrita", 3): 0.04761, ("Restrita", 5): 0.05488, ("Restrita", 7):
 TOL = 5e-4
 # ----------------------------------------
 
-os.chdir(Path(__file__).resolve().parent)
-SRC = Path("projecoes_locais.py").read_text(encoding="utf-8")
+SRC = (ROOT / "projecoes_locais.py").read_text(encoding="utf-8")
 i0 = SRC.find("def lp(")
 i1 = SRC.find("\ntodos = []", i0)
 if i0 < 0 or i1 < 0:
     sys.exit("Nao achei 'def lp(' / 'todos = []' em projecoes_locais.py")
 
-ns = {"__name__": "pl_import", "__file__": str(Path("projecoes_locais.py").resolve())}
+ns = {"__name__": "pl_import", "__file__": str(ROOT / "projecoes_locais.py")}
 buf, t0 = io.StringIO(), time.time()
 try:
     with contextlib.redirect_stdout(buf):
@@ -223,7 +223,7 @@ def teste_loqo():
                            max=g["coef"].max(), q_max=g.loc[g["coef"].idxmax(), "trimestre_excluido"],
                            mais_influente=g.loc[g["delta"].abs().idxmax(), "trimestre_excluido"],
                            inverte_sinal=int((np.sign(g["coef"]) != np.sign(g["coef_cheia"])).sum())))
-    df.to_csv("placebo_loqo_detalhe.csv", index=False)
+    df.to_csv(ROOT / "placebo_loqo_detalhe.csv", index=False)
     return pd.DataFrame(resumo)
 
 
@@ -300,6 +300,6 @@ if __name__ == "__main__":
         t1 = time.time()
         print(f"\n=== {nome} ===")
         df = TESTES[nome]()
-        df.to_csv(f"placebo_{nome}.csv", index=False)
+        df.to_csv(ROOT / f"placebo_{nome}.csv", index=False)
         print(df.to_string(index=False, float_format=lambda v: f"{v:.5f}"))
         print(f"[{nome}] {time.time() - t1:.0f}s -> placebo_{nome}.csv")

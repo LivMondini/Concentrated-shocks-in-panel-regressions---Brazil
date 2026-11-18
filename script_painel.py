@@ -53,7 +53,8 @@ import requests
 # =============================================================================
 # CONFIGURAÇÕES
 # =============================================================================
-BASE_DIR = Path(".")
+ROOT = Path(__file__).resolve().parent
+BASE_DIR = ROOT
 COPOM_CSV = BASE_DIR / "datas_copom.csv"          # coluna 'Data' com reuniões do COPOM
 EPU_CSV = BASE_DIR / "epu_brasil.csv"                    # EPU mensal
 CVM_ROOT = BASE_DIR / "dados_cvm"                 # subpastas por ano (itr_cia_aberta_YYYY, ...)

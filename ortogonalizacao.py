@@ -6,6 +6,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+ROOT = Path(__file__).resolve().parent
+
 
 def read_quarterly(path: Path, value_column: str) -> pd.DataFrame:
     if not path.exists():
@@ -64,11 +66,15 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Cria Shock_t por OLS de Choque_HFI em ΔVIX e risco fiscal trimestral."
     )
-    parser.add_argument("--panel", type=Path, default=Path("painel_final_q.csv"))
-    parser.add_argument("--vix", type=Path, default=Path("vix_trimestral.csv"))
-    parser.add_argument("--fiscal", type=Path, default=Path("risco_fiscal_trimestral.csv"))
-    parser.add_argument("--output", type=Path, default=Path("painel_regressao_q_ortog.csv"))
+    parser.add_argument("--panel", type=Path, default=ROOT / "painel_final_q.csv")
+    parser.add_argument("--vix", type=Path, default=ROOT / "vix_trimestral.csv")
+    parser.add_argument("--fiscal", type=Path, default=ROOT / "risco_fiscal_trimestral.csv")
+    parser.add_argument("--output", type=Path, default=ROOT / "painel_regressao_q_ortog.csv")
     args = parser.parse_args()
+    args.panel = ROOT / args.panel
+    args.vix = ROOT / args.vix
+    args.fiscal = ROOT / args.fiscal
+    args.output = ROOT / args.output
 
     panel = pd.read_csv(args.panel)
     vix = read_quarterly(args.vix, "VIX")

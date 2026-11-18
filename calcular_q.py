@@ -19,6 +19,8 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
+ROOT = Path(__file__).resolve().parent
+
 # =============================================================================
 # CONFIGURAÇÕES
 # =============================================================================
@@ -39,7 +41,7 @@ PL_PROP_MIN = 0.5
 # z-score: False = média/desvio da amostra inteira; True = padroniza dentro de cada trimestre
 Z_POR_TRIMESTRE = False
 
-CVM_ROOT = Path("dados_cvm")
+CVM_ROOT = ROOT / "dados_cvm"
 
 
 # =============================================================================
@@ -82,7 +84,7 @@ def carregar_pl(raiz: Path = CVM_ROOT) -> pd.DataFrame | None:
     return pl[["CNPJ_CIA", "Trimestre", "PL"]]
 
 
-def gerar_lista_suspeitos(acoes: pd.DataFrame, caminho: str = "suspeitos_splits.csv") -> pd.DataFrame:
+def gerar_lista_suspeitos(acoes: pd.DataFrame, caminho: Path = ROOT / "suspeitos_splits.csv") -> pd.DataFrame:
     """Saltos grandes na quantidade total de ações (vs. a observação válida anterior)."""
     a = acoes.dropna(subset=["Q_TOT"]).sort_values(["CNPJ_CIA", "Trimestre"]).copy()
     g = a.groupby("CNPJ_CIA")
@@ -96,7 +98,7 @@ def gerar_lista_suspeitos(acoes: pd.DataFrame, caminho: str = "suspeitos_splits.
 
 
 def ajustar_splits(acoes: pd.DataFrame, pl: pd.DataFrame | None,
-                   sus_csv: str = "suspeitos_splits.csv") -> pd.DataFrame:
+                   sus_csv: Path = ROOT / "suspeitos_splits.csv") -> pd.DataFrame:
     """
     Lê a lista de suspeitos e, para cada salto com razão > SPLIT_LIM_SUP ou < SPLIT_LIM_INF,
     verifica se o PL variou proporcionalmente:
@@ -126,7 +128,7 @@ def ajustar_splits(acoes: pd.DataFrame, pl: pd.DataFrame | None,
 
     ev["acao"] = np.select([ev["prop"].isna(), ev["prop"] >= PL_PROP_MIN],
                            ["sem_PL", "manter_emissao"], default="ajustar")
-    ev.to_csv("splits_ajustados.csv", index=False)
+    ev.to_csv(ROOT / "splits_ajustados.csv", index=False)
     print("Eventos de salto avaliados:", ev["acao"].value_counts().to_dict())
 
     aj = ev.loc[ev["acao"] == "ajustar", ["CNPJ_CIA", "Trimestre", "razao"]].rename(columns={"razao": "ev"})
@@ -178,13 +180,13 @@ def resumo(s: pd.Series, nome: str) -> dict:
 # =============================================================================
 # DADOS DE ENTRADA
 # =============================================================================
-painel = pd.read_csv("painel_final.csv")
-tk = pd.read_csv("tickers.csv")
-px = pd.read_csv("precos_trimestrais.csv")
+painel = pd.read_csv(ROOT / "painel_final.csv")
+tk = pd.read_csv(ROOT / "tickers.csv")
+px = pd.read_csv(ROOT / "precos_trimestrais.csv")
 
 # ---------- 1) Ações 2011-2019: FRE (anual -> repete nos 4 trimestres) ----------
 fre = []
-for f in sorted(Path("dados_fre").rglob("*.csv")):
+for f in sorted((ROOT / "dados_fre").rglob("*.csv")):
     if not re.search(r"capital_social_\d{4}\.csv$", f.name):
         continue
     d = pd.read_csv(f, sep=";", encoding="latin1", dtype=str)
@@ -206,7 +208,7 @@ print("FRE:", fre["CNPJ_CIA"].nunique(), "empresas")
 
 # ---------- 2) Ações 2020+: composição do capital (ITR + DFP) ----------
 frames = [pd.read_csv(f, sep=";", encoding="latin1", dtype=str)
-          for f in Path("dados_cvm").rglob("*composicao_capital*.csv")]
+          for f in (ROOT / "dados_cvm").rglob("*composicao_capital*.csv")]
 cap = pd.concat(frames, ignore_index=True)
 print("Colunas da composição do capital:", list(cap.columns))
 
@@ -259,8 +261,8 @@ for c in ["Q_ON", "Q_PN", "Q_TOT"]:
 acoes = acoes.drop(columns="f")
 
 # ---------- 3c) Splits/grupamentos: lista de suspeitos + teste do Patrimônio Líquido ----------
-gerar_lista_suspeitos(acoes, "suspeitos_splits.csv")
-acoes = ajustar_splits(acoes, carregar_pl(CVM_ROOT), "suspeitos_splits.csv")
+gerar_lista_suspeitos(acoes, ROOT / "suspeitos_splits.csv")
+acoes = ajustar_splits(acoes, carregar_pl(CVM_ROOT), ROOT / "suspeitos_splits.csv")
 
 # ---------- 4) Um ticker por empresa e classe (o com mais trimestres de preço) ----------
 n = px.groupby("Ticker").size().rename("n")
@@ -302,14 +304,14 @@ rel = pd.DataFrame([
     resumo(p["Tobin_Q"], "Tobin_Q (pós-winsorização)"),
     resumo(p["log_Tobin_Q"], "log_Tobin_Q (pós-winsorização)"),
 ])
-rel.to_csv("estatisticas_tobin_q.csv", index=False)
+rel.to_csv(ROOT / "estatisticas_tobin_q.csv", index=False)
 print("\n=== Estatísticas descritivas (estatisticas_tobin_q.csv) ===")
 print(rel.round(4).to_string(index=False))
 
 print(f"\nCobertura do Tobin_Q: {p['Tobin_Q'].notna().mean():.0%} das linhas")
 p["Ano"] = p["Trimestre"].str[:4]
 print(p.groupby("Ano")["Tobin_Q"].apply(lambda s: f"{s.notna().mean():.0%}").to_string())
-p.drop(columns="Ano").to_csv("painel_final_q.csv", index=False)
+p.drop(columns="Ano").to_csv(ROOT / "painel_final_q.csv", index=False)
 
 # Diagnóstico de extremos sobre o Q BRUTO (o winsorizado já está limitado)
 ext = p[(p["Tobin_Q_raw"] > 20) | (p["Tobin_Q_raw"] < 0.02)]
