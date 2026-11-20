@@ -2,7 +2,6 @@
 
 Replication code for the Brazilian results of the paper *Concentrated shocks in panel regressions* (listed Brazilian firms, 2011Q2–2024Q3; local projections of the aggregate monetary shock × cash interaction).
 
-The United States results are in the companion repository: <https://github.com/LivMondini/Concentrated-shocks-in-panel-regressions---Brazil>.
 
 Each table and figure of the paper and of the online appendix is mapped to a script and an output file in [section 5](#5-map-of-tables-and-figures).
 
