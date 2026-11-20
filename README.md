@@ -1,4 +1,4 @@
-# Concentrated shocks in panel regressions — Brazil
+# How many periods identify the interaction? Concentrated shocks in panel regressions -- Brazil
 
 Replication code for the Brazilian results of the paper *Concentrated shocks in panel regressions* (listed Brazilian firms, 2011Q2–2024Q3; local projections of the aggregate monetary shock × cash interaction).
 
